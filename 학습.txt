@@ -1,0 +1,73 @@
+[음식 이미지 분류 학습 요약]
+
+1) 분류 리포트 용어 설명 (precision / recall / f1-score / support)
+- precision(정밀도): 모델이 "해당 클래스로 예측한 것" 중에서 실제로 맞은 비율
+  - 수식: TP / (TP + FP)
+  - 예: tacos로 예측한 샘플들 중 실제로 tacos인 비율
+
+- recall(재현율): 실제로 해당 클래스인 것들 중에서 모델이 맞게 찾아낸 비율
+  - 수식: TP / (TP + FN)
+  - 예: 실제 tacos 전체 중 모델이 tacos로 맞춘 비율
+
+- f1-score: precision과 recall의 조화평균(균형 지표)
+  - 수식: 2 * (precision * recall) / (precision + recall)
+
+- support: 해당 클래스의 실제 샘플 개수(검증 셋에 존재하는 정답 표본 수)
+
+- accuracy(정확도): 전체 샘플 중에 정답을 맞춘 비율
+  - 수식: (전체 맞춘 개수) / (전체 개수)
+
+2) 혼동행렬(Confusion Matrix)란?
+- 행(가로)은 "실제 클래스", 열(세로)은 "예측 클래스"를 의미하는 표입니다.
+- 대각선 성분(왼쪽 위→오른쪽 아래)이 클수록 해당 클래스를 잘 맞췄다는 뜻입니다.
+- 예: [i, j]가 5라면, 실제 클래스 i를 예측에서 클래스 j로 분류한 샘플이 5개라는 의미입니다.
+- 본 데이터셋은 10개 클래스이므로 10x10 행렬이 출력됩니다.
+
+3) 학습 시작 명령어(Windows cmd 기준)
+- (선택) 가상환경 생성 및 패키지 설치
+  1. 가상환경 생성
+     python -m venv .venv
+  2. pip 업그레이드
+     .venv\Scripts\python -m pip install --upgrade pip
+  3. 의존성 설치
+     .venv\Scripts\pip install -r requirements.txt
+
+- 빠른 산점검(1 epoch, CPU)
+  .venv\Scripts\python train_food_classifier.py --data_root . --model resnet18 --img_size 128 --epochs 1 --batch_size 8 --num_workers 0 --output_dir outputs --no_pretrained
+
+- 권장 기본 학습(정식, 사전학습 사용)
+  .venv\Scripts\python train_food_classifier.py --data_root . --model resnet18 --img_size 224 --epochs 10 --batch_size 32 --lr 3e-4 --freeze_epochs 1 --num_workers 0 --early_stop_patience 3 --output_dir outputs
+
+  참고
+  - --model: resnet18 | resnet34 | resnet50 | mobilenet_v3_small | mobilenet_v3_large | efficientnet_b0 | efficientnet_b1
+  - --num_workers: Windows에서는 처음 0으로 시작 권장(프로세스 스폰 지연 방지)
+  - --grad_accum N: 메모리 부족 시 유효 배치= batch_size * N으로 키우는 기법
+
+4) 출력물과 위치
+- outputs/label_mapping.json: 라벨-인덱스 매핑
+- outputs/best.pt: 최고 검증 정확도 모델 가중치
+- 콘솔: epoch별 Train/Val 손실/정확도, classification report, 혼동행렬
+- (옵션) test.csv가 있으면 자동으로 outputs/submission.csv 생성
+
+5) 추론/배포(선택)
+- 단일/폴더 추론: inference.py 사용
+  .venv\Scripts\python inference.py --checkpoint outputs\best.pt --model resnet18 --input_dir test_images --batch_size 128 --output inference_results.csv
+- ONNX 내보내기:  
+  .venv\Scripts\python inference.py --checkpoint outputs\best.pt --model resnet18 --export_onnx food_model.onnx --img_size 224
+
+6) 스크린샷(첨부) 해석 팁
+- precision/recall/f1-score/support: 각 클래스별 지표와 표본 수
+- Confusion Matrix: 행=실제, 열=예측. 대각선이 클수록 정확
+- Test Predict 진행 막대: 테스트셋 배치 추론 진행률 표시
+- 마지막 줄 [DONE]: 전체 파이프라인 완료 표시
+
+[추가 설명]
+7) 파일 설명: best.pt와 submission.csv
+- best.pt: 검증 정확도가 가장 높았던 시점의 모델 가중치 체크포인트입니다. 추론(inference)이나 이어 학습(resume)에 사용합니다.
+  - 이어 학습 예시(cmd):
+    .venv\Scripts\python train_food_classifier.py --data_root . --model resnet18 --epochs 20 --checkpoint outputs\best.pt --resume --output_dir outputs
+- submission.csv: 테스트셋(test.csv)을 best 모델로 예측해 생성된 제출 파일입니다. 컬럼은 image_id, label이며 대회/평가 시스템에 제출하는 용도로 사용합니다.
+
+단일 이미지 
+.venv\Scripts\python inference.py --checkpoint outputs\best.pt --model resnet18 --image (예시경로)test/test1.jpg --no_cuda --output outputs\(저장할이름)test.csv
+[끝]

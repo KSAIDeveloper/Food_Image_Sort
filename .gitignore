@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.env
+.venv/
+
+# VS Code
+.vscode/
+
+# Data & outputs (avoid pushing large files)
+train_images/
+test_images/
+test/
+outputs/
+*.pt
+*.onnx
+
+# Logs
+*.log
+
+# CSV (keep small samples only)
+# If you want to include CSVs, comment these out
+train.csv
+test.csv
+inference_results.csv
+submission.csv
