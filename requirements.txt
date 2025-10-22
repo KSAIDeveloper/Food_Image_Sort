@@ -1,0 +1,12 @@
+### Requirements file (ASCII only to avoid Windows cp949 decoding issues)
+### If you have GPU (CUDA 12.x) you can later install a specific build from PyTorch download page.
+
+torch>=2.1.0
+torchvision>=0.16.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+Pillow>=10.0.0
+tqdm>=4.66.0
+
+# Optional: for more model zoo
+# timm>=0.9.0

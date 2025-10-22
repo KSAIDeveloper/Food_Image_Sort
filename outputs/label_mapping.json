@@ -1,0 +1,26 @@
+{
+  "label2idx": {
+    "burger": 0,
+    "churros": 1,
+    "crepes": 2,
+    "falafel": 3,
+    "hot_dog": 4,
+    "pad_thai": 5,
+    "pani_puri": 6,
+    "pretzel": 7,
+    "shawarma": 8,
+    "tacos": 9
+  },
+  "idx2label": {
+    "0": "burger",
+    "1": "churros",
+    "2": "crepes",
+    "3": "falafel",
+    "4": "hot_dog",
+    "5": "pad_thai",
+    "6": "pani_puri",
+    "7": "pretzel",
+    "8": "shawarma",
+    "9": "tacos"
+  }
+}
